@@ -3,6 +3,8 @@ server:
 spring:
   application:
     name: customer
+  rabbitmq:
+    addresses: localhost:5672
   datasource:
     username: youssef
     password: password
@@ -19,4 +21,20 @@ eureka:
   client:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
+
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+
+rabbitmq:
+  exchanges:
+    internal: internal.exchange
+  queue:
+    notification: notification.queue
+  routing-key:
+    internal-notification: internal.notification.routing-key
+
+
 

@@ -31,9 +31,105 @@ services:
       - postgres
     restart: unless-stopped
 
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - rabbitmq
+
+  rabbitmq:
+    image: rabbitmq:3.9.11-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - rabbitmq
+  apigtw:
+    image: youssefhadoud/apigtw:latest
+    container_name: apigtw
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - zipkin
+    networks:
+      - rabbitmq
+
+  customer:
+    image: youssefhadoud/costumer:latest
+    container_name: customer
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - zipkin
+      - postgres
+      - rabbitmq
+    networks:
+      - postgres
+      - rabbitmq
+
+
+  eurekaserver:
+    image: youssefhadoud/eurekaservices:latest
+    container_name: eurekaserver
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - apigtw
+    networks:
+      - rabbitmq
+
+  fraud:
+    image: youssefhadoud/fraud:latest
+    container_name: fraud
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+      - zipkin
+      - eurekaserver
+      - rabbitmq
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - rabbitmq
+      - postgres
+
+  notification:
+    image: youssefhadoud/notification:latest
+    container_name: notification
+    ports:
+      - "8090:8090"
+    depends_on:
+      - postgres
+      - eurekaserver
+      - zipkin
+      - rabbitmq
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - postgres
+      - rabbitmq
+
+
 networks:
   postgres:
     driver: bridge
+  rabbitmq:
+    driver: bridge
+
+
+
 
 volumes:
   postgres:

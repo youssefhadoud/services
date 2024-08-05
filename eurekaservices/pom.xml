@@ -8,7 +8,7 @@
     </parent>
     <groupId>org.example</groupId>
     <artifactId>eurekaservices</artifactId>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
     <name>eurekaservices Maven Webapp</name>
     <url>http://maven.apache.org</url>
     <dependencies>
@@ -17,8 +17,33 @@
             <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
 
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
     </dependencies>
     <build>
-        <finalName>eurekaservices</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>3.3.1</version>
+            </plugin>
+        </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>build-docker-image</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.google.cloud.tools</groupId>
+                        <artifactId>jib-maven-plugin</artifactId>
+
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
